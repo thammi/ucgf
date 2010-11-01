@@ -10,8 +10,8 @@ class PointCloud:
         self.vectors = vectors
 
         self.props = props = ucgf.PropFarm()
-        props.add('list_mode', ucgf.Switch(K_d))
-        props.add('point_size', ucgf.Slider((K_PERIOD, K_COMMA), start=1, end=10, step=4))
+        props.add('list_mode', ucgf.Switch(K_l))
+        props.add('point_size', ucgf.Slider((K_PERIOD, K_COMMA), start=1, end=100, step=4))
 
     def gl_init(self):
         self.gl_list = gl_list = glGenLists(1)

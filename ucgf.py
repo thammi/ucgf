@@ -198,7 +198,9 @@ class Showcase(Composite):
         self.props = props = PropFarm()
         props.add('rotate', Slider((K_LEFT, K_RIGHT), end=360, step=60, rotate=True))
         props.add('angle', Slider((K_UP, K_DOWN), end=360, value=30, step=60, rotate=True))
-        props.add('distance', Slider((K_PAGEDOWN, K_PAGEUP), value=10, start=5, end=50, step=8))
+        props.add('move_x', Slider((K_d, K_a), value=0, start=-40, end=400, step=4))
+        props.add('move_y', Slider((K_q, K_e), value=0, start=-40, end=40, step=4))
+        props.add('move_z', Slider((K_s, K_w), value=10, start=5, end=100, step=8))
 
         self.add(props)
 
@@ -213,7 +215,7 @@ class Showcase(Composite):
 
         glPushMatrix()
 
-        glTranslate(0, 0, -props['distance'])
+        glTranslate(props['move_x'], props['move_y'], -props['move_z'])
         glRotate(props['angle'], 1, 0, 0)
         glRotate(props['rotate'], 0, 1, 0)
 
