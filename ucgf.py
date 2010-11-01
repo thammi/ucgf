@@ -25,7 +25,64 @@ from OpenGL.GLU import *
 import time
 import sys
 
-from vec import vec
+class Vector:
+
+    def __init__(self, *data):
+        if len(data) == 1:
+            self.data = list(data[0])
+        else:
+            self.data = list(data)
+
+    def len_check(self, size):
+        if len(self) != size:
+            print len(self)
+            raise NotImplementedError
+
+    def __repr__(self):
+        return "Vector(%s)" % ', '.join(str(v) for v in self.data)
+
+    def __len__(self):
+        return len(self.data)
+
+    def __iter__(self):
+        return self.data.__iter__()
+    
+    def __getitem__(self, index):
+        return self.data[index]
+
+    def __setitem__(self, index, value):
+        self.data[index] = value
+
+    def __add__(self, other):
+        return Vector(a + b for a, b in zip(self, other))
+
+    def __sub__(self, other):
+        return Vector(a - b for a, b in zip(self, other))
+
+    def cross(self, other):
+        self.len_check(3)
+
+        a = self
+        b = other
+
+        return Vector(a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0])
+
+    def __mul__(self, factor):
+        return Vector(v * factor for v in self)
+
+    def __rmul__(self, factor):
+        return self.__mul__(factor)
+    
+    def __imul__(self, factor):
+        self.data = self.__mul__(factor)
+
+    def size(self):
+        self.len_check(3)
+
+        return sum(v*v for v in self.data) ** 0.5
+    
+    def normalize(self):
+        self *= 1. / self.size()
 
 class Composite:
 
@@ -245,16 +302,18 @@ class Showcase(Composite):
 
 class Cube:
 
-    def __init__(self):
+    def gl_init(self):
         self.gl_list = gl_list = glGenLists(1)
         glNewList(gl_list, GL_COMPILE)
         self.raw_render()
         glEndList()
 
     def raw_render(self):
+        # borrowed from twobit
+
         # create a cube
         s = (-1, 1)
-        v = [vec(x, y, z) for x in s for y in s for z in s]
+        v = [Vector(x, y, z) for x in s for y in s for z in s]
         p = [
                 (0, 1, 3, 2),
                 (6, 7, 5, 4),
@@ -265,15 +324,23 @@ class Cube:
             ]
 
         for p in p:
-            glColor(0, 0, 1)
-            glBegin(GL_TRIANGLE_FAN)
             a, b, c = (v[i] for i in p[:3])
             ab = b - a
             ac = c - a
-            n = ab.cross(ac).normalize()
+            n = ab.cross(ac)
+            n.normalize()
+
+            glColor(0, 0, 1)
+
+            glBegin(GL_TRIANGLE_FAN)
+
             glNormal(*n)
-            for i in p: glVertex(v[i])
+            for i in p:
+                glVertex(v[i])
+
             glEnd()
+
+        # /twobit
 
     def render(self):
         glCallList(self.gl_list)
