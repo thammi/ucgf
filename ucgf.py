@@ -68,13 +68,19 @@ class Vector:
         return Vector(a[1]*b[2]-a[2]*b[1], a[2]*b[0]-a[0]*b[2], a[0]*b[1]-a[1]*b[0])
 
     def __mul__(self, factor):
-        return Vector(v * factor for v in self)
+        if isinstance(factor, Vector):
+            return Vector(v * f for v, f in zip(self, factor))
+        else:
+            return Vector(v * factor for v in self)
 
     def __rmul__(self, factor):
         return self.__mul__(factor)
     
     def __imul__(self, factor):
-        self.data = self.__mul__(factor)
+        # TODO: ugly ...
+        v = self.__mul__(factor)
+        self.data = v.data
+        return self
 
     def size(self):
         self.len_check(3)
@@ -119,6 +125,20 @@ class PolyPackage:
 
     def render(self):
         glCallList(self.gl_list)
+
+    def transform(self, x, y, z):
+        delta = (x, y, z)
+
+        for polygon in self.polygons:
+            for index in range(3):
+                polygon[index] += delta[index]
+
+    def scale(self, x, y, z):
+        factor = Vector(x, y, z)
+
+        for polygon in self.polygons:
+            for index in range(3):
+                polygon[index] = polygon[index] * factor
 
 class Composite:
 
@@ -393,7 +413,9 @@ def show_scene(objects):
     s.loop()
 
 def main(argv):
-    show_scene([Cube()])
+    cube = Cube()
+    cube.scale(0.1, 1, 0.1)
+    show_scene([cube])
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
