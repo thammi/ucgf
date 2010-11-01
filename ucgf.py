@@ -84,6 +84,42 @@ class Vector:
     def normalize(self):
         self *= 1. / self.size()
 
+class PolyPackage:
+
+    def __init__(self, color=(1, 0, 1)):
+        self.polygons = []
+        self.color = color
+
+    def add(self, a, b, c):
+        self.polygons.append([a, b, c])
+
+    def gl_init(self):
+        self.gl_list = gl_list = glGenLists(1)
+        glNewList(gl_list, GL_COMPILE)
+        self.raw_render()
+        glEndList()
+
+    def raw_render(self):
+        glColor(*self.color)
+
+        glBegin(GL_TRIANGLES)
+
+        for polygon in self.polygons:
+            ab = polygon[1] - polygon[0]
+            ac = polygon[2] - polygon[0]
+            n = ab.cross(ac)
+            n.normalize()
+
+            glNormal(*n)
+
+            for vector in polygon:
+                glVertex(vector)
+
+        glEnd()
+
+    def render(self):
+        glCallList(self.gl_list)
+
 class Composite:
 
     def __init__(self):
@@ -300,18 +336,13 @@ class Showcase(Composite):
 
         glPopMatrix()
 
-class Cube:
+class Cube(PolyPackage):
 
-    def gl_init(self):
-        self.gl_list = gl_list = glGenLists(1)
-        glNewList(gl_list, GL_COMPILE)
-        self.raw_render()
-        glEndList()
+    def __init__(self, color=(1, 0, 1)):
+        PolyPackage.__init__(self, color)
 
-    def raw_render(self):
-        # borrowed from twobit
+        # concept borrowed from twobit
 
-        # create a cube
         s = (-1, 1)
         v = [Vector(x, y, z) for x in s for y in s for z in s]
         p = [
@@ -324,26 +355,11 @@ class Cube:
             ]
 
         for p in p:
-            a, b, c = (v[i] for i in p[:3])
-            ab = b - a
-            ac = c - a
-            n = ab.cross(ac)
-            n.normalize()
-
-            glColor(0, 0, 1)
-
-            glBegin(GL_TRIANGLE_FAN)
-
-            glNormal(*n)
-            for i in p:
-                glVertex(v[i])
-
-            glEnd()
+            a, b, c, d = (v[i] for i in p)
+            self.add(a, b, c)
+            self.add(c, d, a)
 
         # /twobit
-
-    def render(self):
-        glCallList(self.gl_list)
 
 class Benchmarker:
 
