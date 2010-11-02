@@ -25,6 +25,15 @@ from OpenGL.GLU import *
 import time
 import sys
 
+def list_render(render_fun):
+    gl_list = glGenLists(1)
+
+    glNewList(gl_list, GL_COMPILE)
+    render_fun()
+    glEndList()
+
+    return gl_list
+
 class Vector:
 
     def __init__(self, *data):
@@ -100,10 +109,7 @@ class PolyPackage:
         self.polygons.append([a, b, c])
 
     def gl_init(self):
-        self.gl_list = gl_list = glGenLists(1)
-        glNewList(gl_list, GL_COMPILE)
-        self.raw_render()
-        glEndList()
+        self.gl_list = list_render(self.raw_render)
 
     def raw_render(self):
         glColor(*self.color)
@@ -126,12 +132,12 @@ class PolyPackage:
     def render(self):
         glCallList(self.gl_list)
 
-    def transform(self, x, y, z):
+    def translate(self, x, y, z):
         delta = (x, y, z)
 
         for polygon in self.polygons:
             for index in range(3):
-                polygon[index] += delta[index]
+                polygon[index] = polygon[index] + delta
 
     def scale(self, x, y, z):
         factor = Vector(x, y, z)
@@ -363,7 +369,7 @@ class Cube(PolyPackage):
 
         # concept borrowed from twobit
 
-        s = (-1, 1)
+        s = (-0.5, 0.5)
         v = [Vector(x, y, z) for x in s for y in s for z in s]
         p = [
                 (0, 1, 3, 2),
@@ -414,7 +420,6 @@ def show_scene(objects):
 
 def main(argv):
     cube = Cube()
-    cube.scale(0.1, 1, 0.1)
     show_scene([cube])
 
 if __name__ == "__main__":
