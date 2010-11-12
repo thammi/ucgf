@@ -110,6 +110,9 @@ class PolyPackage:
     def add(self, a, b, c):
         self.polygons.append([a, b, c])
 
+    def assimilate(self, obj):
+        self.polygons.extend(obj.polygons)
+
     def gl_init(self):
         self.gl_list = list_render(self.raw_render)
 
