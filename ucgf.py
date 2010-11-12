@@ -260,6 +260,8 @@ class Scene:
         glDepthFunc(GL_LEQUAL)
         glShadeModel(GL_SMOOTH)
 
+        glEnable(GL_NORMALIZE)
+
         #glEnable(GL_BLEND)
         #glEnable(GL_ALPHA_TEST)
         #glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
@@ -337,7 +339,7 @@ class Showcase(Composite):
         self.props = props = PropFarm()
         props.add('rotate', Slider((K_LEFT, K_RIGHT), end=360, step=60, rotate=True))
         props.add('angle', Slider((K_UP, K_DOWN), end=360, value=30, step=60, rotate=True))
-        props.add('move_x', Slider((K_d, K_a), value=0, start=-40, end=400, step=4))
+        props.add('move_x', Slider((K_a, K_d), value=0, start=-40, end=400, step=4))
         props.add('move_y', Slider((K_q, K_e), value=0, start=-40, end=40, step=4))
         props.add('move_z', Slider((K_s, K_w), value=10, start=5, end=100, step=8))
 
