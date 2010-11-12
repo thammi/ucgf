@@ -22,8 +22,10 @@ import pygame
 from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
+
 import time
 import sys
+from math import cos, sin, pi
 
 def list_render(render_fun):
     gl_list = glGenLists(1)
@@ -389,6 +391,25 @@ class Cube(PolyPackage):
 
         # /twobit
 
+class Tube(PolyPackage):
+
+    def __init__(self, corners, color=(1, 0, 1)):
+        PolyPackage.__init__(self, color)
+
+        angles = lambda: (index * pi * 2 / corners for index in range(corners) + [0])
+
+        up = [Vector(cos(angle)/2, 0.5, sin(angle)/2) for angle in angles()]
+        down = [Vector(cos(angle)/2, -0.5, sin(angle)/2) for angle in angles()]
+
+        up_center = Vector(0, 0.5, 0)
+        down_center = Vector(0, -0.5, 0)
+
+        for index in range(corners):
+            self.add(up[index], up[index+1], down[index+1])
+            self.add(down[index+1], down[index], up[index])
+            self.add(up[index], up_center, up[index+1])
+            self.add(down[index+1], down_center, down[index])
+
 class Benchmarker:
 
     BENCH_LENGTH = 15.0
@@ -421,8 +442,8 @@ def show_scene(objects):
     s.loop()
 
 def main(argv):
-    cube = Cube()
-    show_scene([cube])
+    tube = Tube(10)
+    show_scene([tube])
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
