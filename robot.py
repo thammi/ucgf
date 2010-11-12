@@ -31,26 +31,41 @@ class Robot:
     def __init__(self):
         key_mapping = [
                     (K_t, K_g),
-                    (K_y, K_h),
-                    (K_u, K_j),
+                    (K_h, K_y),
+                    (K_j, K_u),
                     (K_i, K_k),
                     (K_o, K_l),
                 ]
 
-        self.values = [ucgf.Slider(keys, 360, value=30, step=30) for keys in key_mapping]
+        self.values = [ucgf.Slider(keys, 360, value=30, step=30, rotate=True)
+                for keys in key_mapping[:-1]]
+
+        # add the claws
+        self.values.append(ucgf.Slider(key_mapping[-1], 0.75, 0))
+
+        # fix some values
         self.values[0].value = 0
         self.values[-2].value = 0
 
-        podium = ucgf.Cube((0.7, 0.7, 0.7))
+        podium = ucgf.Cube(color=(0.7, 0.7, 0.7))
         podium.scale(15, 0.1, 15)
 
-        limb = ucgf.Cube((1, 0, 0))
+        limb = ucgf.Cube(color=(1, 0, 0))
         limb.scale(1, 11, 1)
         limb.translate(0, 5, 0)
+
+        head = ucgf.Cube(color=(0.3, 0.3, 0.7))
+        head.scale(3, 0.4, 1.5)
+
+        claw = ucgf.Cube(color=(0.5, 0.5, 0.8))
+        claw.scale(1, 1.5, 0.5)
+        claw.translate(0, 0.75, 0.3)
 
         self.parts = {
                 'podium': podium,
                 'limb': limb,
+                'head': head,
+                'claw': claw,
                 }
 
     def gl_init(self):
@@ -63,16 +78,33 @@ class Robot:
 
     def render(self):
         parts = self.parts
+        values = self.values
+
         glPushMatrix()
+
+        glScale(0.2, 0.2, 0.2)
+        glTranslate(0, -2, 0)
 
         parts['podium'].render()
 
         glRotate(self.values[0].value, 0, 1, 0)
 
-        for slider in self.values[1:-2]:
+        for slider in values[1:-2]:
             glRotate(slider.value, -1, 0, 0)
             parts['limb'].render()
             glTranslate(0, 10.5, 0)
+
+        glRotate(values[-2].value, 0, 1, 0)
+        parts['head'].render()
+
+        for angle in (90, -90):
+            glPushMatrix()
+
+            glRotate(angle, 0, 1, 0)
+            glTranslate(0, 0, values[-1].value)
+            parts['claw'].render()
+
+            glPopMatrix()
 
         glPopMatrix()
 
