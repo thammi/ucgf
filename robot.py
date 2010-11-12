@@ -47,12 +47,19 @@ class Robot:
         self.values[0].value = 0
         self.values[-2].value = 0
 
+        stand = ucgf.Tube(128)
+        stand.translate(0, 0.5, 0)
+        stand.scale(3, 1, 3)
+
         podium = ucgf.Cube(color=(0.7, 0.7, 0.7))
         podium.scale(15, 0.1, 15)
 
+        podium.assimilate(stand)
+        podium.translate(0, -1, 0)
+
         limb = ucgf.Cube(color=(1, 0, 0))
-        limb.scale(1, 11, 1)
-        limb.translate(0, 5, 0)
+        limb.scale(1, 7, 1)
+        limb.translate(0, 3, 0)
 
         head = ucgf.Cube(color=(0.3, 0.3, 0.7))
         head.scale(3, 0.4, 1.5)
@@ -92,7 +99,7 @@ class Robot:
         for slider in values[1:-2]:
             glRotate(slider.value, -1, 0, 0)
             parts['limb'].render()
-            glTranslate(0, 10.5, 0)
+            glTranslate(0, 6.5, 0)
 
         glRotate(values[-2].value, 0, 1, 0)
         parts['head'].render()
