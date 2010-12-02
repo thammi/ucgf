@@ -118,7 +118,9 @@ class PolyPackage:
         self.gl_list = list_render(self.raw_render)
 
     def raw_render(self):
-        glColor(*self.color)
+        color = self.color
+        if color != None:
+            glColor(*color)
 
         glBegin(GL_TRIANGLES)
 
