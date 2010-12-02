@@ -103,9 +103,10 @@ class Vector:
 
 class PolyPackage:
 
-    def __init__(self, color=(1, 0, 1)):
+    def __init__(self, color=(1, 0, 1), invert_normals=False):
         self.polygons = []
         self.color = color
+        self.invert_normals = invert_normals
 
     def add(self, a, b, c):
         self.polygons.append([a, b, c])
@@ -126,6 +127,9 @@ class PolyPackage:
             ac = polygon[2] - polygon[0]
             n = ab.cross(ac)
             n.normalize()
+
+            if self.invert_normals:
+                n = -1 * n
 
             glNormal(*n)
 
@@ -286,7 +290,7 @@ class Scene:
         glEnable(GL_LIGHT0)
         glLight(GL_LIGHT0, GL_AMBIENT, (0, 0, 0))
         # glLight(GL_LIGHT0, GL_DIFFUSE, (1, 1, 1))
-        # glLight(GL_LIGHT0, GL_SPECULAR, (1, 1, 1))
+        glLight(GL_LIGHT0, GL_SPECULAR, (1, 1, 1))
         glLight(GL_LIGHT0, GL_POSITION, (10, 10, 10))
         glLightModelfv(GL_LIGHT_MODEL_AMBIENT, (0, 0, 0, 0))
 
