@@ -30,7 +30,7 @@ class Projection:
         self.cube = ucgf.Cube(color=(0.5, 0.5, 1))
         self.props = props = ucgf.PropFarm()
 
-        self.ball = ball = ucgf.Cube(color=None)
+        self.ball = ball = ucgf.Sphere(3, color=None)
         ball.scale(*[0.2]*3)
 
         props.add('front_face', ucgf.Switch(K_b))
