@@ -400,6 +400,46 @@ class Cube(PolyPackage):
 
         # /twobit
 
+class Sphere(PolyPackage):
+
+    def __init__(self, detail=3, color=(1, 0, 1)):
+        PolyPackage.__init__(self, color)
+        
+        # concept borrowed from twobit
+        s = (-0.5, 0.5)
+        v = [Vector(x, y, z) for x in s for y in s for z in s]
+        p = [
+                (0, 1, 3, 2),
+                (6, 7, 5, 4),
+                (4, 5, 1, 0),
+                (2, 3, 7, 6),
+                (5, 7, 3, 1),
+                (0, 2, 6, 4),
+            ]
+
+        for p in p:
+            self.add_square([v[i] for i in p], detail)
+
+    def add_square(self, (a, b, c, d), levels=0):
+        if levels:
+            e = (a + b) * 0.5
+            f = (b + c) * 0.5
+            g = (c + d) * 0.5
+            h = (d + a) * 0.5
+            i = (a + b + c + d) * 0.25
+
+            self.add_square((a, e, i, h), levels - 1)
+            self.add_square((e, b, f, i), levels - 1)
+            self.add_square((i, f, c, g), levels - 1)
+            self.add_square((h, i, g, d), levels - 1)
+        else:
+            for v in a, b, c, d:
+                v.normalize()
+                v *= 0.5
+
+            self.add(a, b, c)
+            self.add(c, d, a)
+
 class Tube(PolyPackage):
 
     def __init__(self, corners, color=(1, 0, 1)):
@@ -451,8 +491,7 @@ def show_scene(objects):
     s.loop()
 
 def main(argv):
-    tube = Tube(10)
-    show_scene([tube])
+    show_scene([Sphere(4)])
 
 if __name__ == "__main__":
     sys.exit(main(sys.argv[1:]))
