@@ -60,12 +60,18 @@ class Projection:
 
         glPushMatrix()
 
-        glMultMatrixf([
+        m = [
             1, 0, 0, props['p_x'],
             0, 1, 0, props['p_y'],
             0, 0, 1, props['p_z'],
             0, 0, 0, 1,
-            ])
+            ]
+
+        if props['inverse']:
+            for i in range(3):
+                m[3 + (4 * i)] *= -1
+
+        glMultMatrixf(m)
 
         cube = self.cube
         cube.invert_normals = not front_face
