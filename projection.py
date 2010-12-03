@@ -34,7 +34,7 @@ class Projection:
         ball.scale(*[0.2]*3)
 
         props.add('front_face', ucgf.Switch(K_b))
-        props.add('inverse', ucgf.Switch(K_i))
+        props.add('inverse', ucgf.Switch(K_i, value=False))
 
         keys = [
                 ('p_x', (K_r, K_f), 0),
