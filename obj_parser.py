@@ -55,22 +55,25 @@ class ObjObject:
         if color != None:
             glColor(*color)
 
-        # TODO: support other primitives
         for face in self.faces:
             glBegin(GL_TRIANGLE_FAN)
 
+            # this is very hacky normal calculation (if none given)!
+            if face[0][1] == None:
+                vv = [ucgf.Vector(*vertices[i[0] - 1]) for i in face]
+                ab = vv[1] - vv[0]
+                ac = vv[2] - vv[0]
+                n = ab.cross(ac)
+                n.normalize()
+
+                glNormal(*n)
+
+            # actual rendering of the vertices
             for vert_i, text_i, norm_i in face:
                 vertex = vertices[vert_i - 1]
 
                 if norm_i:
                     glNormal(*normals[norm_i - 1])
-                #else:
-                    #ab = vertex[1] - polygon[0]
-                    #ac = polygon[2] - polygon[0]
-                    #n = ab.cross(ac)
-                    #n.normalize()
-
-                    #glNormal(*n)
                 
                 # TODO: texture coordinates
 
