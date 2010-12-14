@@ -102,6 +102,12 @@ class ObjObject:
     def render(self):
         glCallList(self.gl_list)
 
+    def vert_faces(self):
+        vertices = self.vertices
+        faces = self.faces
+
+        return (tuple(vertices[i-1] for i, _, _ in face) for face in faces)
+
 def main(argv):
     ucgf.show_scene([ObjObject(argv[0])])
 
