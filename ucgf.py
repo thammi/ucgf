@@ -80,7 +80,7 @@ class Vector:
 
     def __mul__(self, factor):
         if isinstance(factor, Vector):
-            return Vector(v * f for v, f in zip(self, factor))
+            return sum(v * f for v, f in zip(self, factor))
         else:
             return Vector(v * factor for v in self)
 
