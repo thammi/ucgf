@@ -30,6 +30,14 @@ def face_item(l):
     raw = [int(i) if i else None for i in l.split('/')]
     return tuple(raw + [None] * (3 - len(raw)))
 
+class GraphNode:
+
+    def __init__(self, vertex):
+        self.vertex = vertex
+
+        self.faces = set()
+        self.neighbors = set()
+
 class ObjObject:
 
     def __init__(self, file_name, color=(1, 0, 1)):
@@ -39,7 +47,6 @@ class ObjObject:
         self.normals = normals = []
         self.texture = texture = []
         self.faces = faces = []
-
         
         inp = open(file_name)
 
@@ -109,11 +116,53 @@ class ObjObject:
         return (tuple(ucgf.Vector(vertices[i-1]) for i, _, _ in f)
                 for f in faces)
 
+    def graph(self):
+        graph = [GraphNode(vertex) for vertex in self.vertices]
+
+        for face in self.faces:
+            l = len(face)
+            for index, (vert_i, _, _) in enumerate(face):
+                for diff in 1, -1:
+                    neighbor_i = face[(index+diff)%l][0]
+                    graph[vert_i-1].neighbors.add(graph[neighbor_i-1])
+
+        return graph
+
+    def smooth(self, alpha, depth=1):
+        for _ in range(depth):
+            print _
+
+            vertices = []
+
+            for node in self.graph():
+                neighbors = node.neighbors
+
+                vector = ucgf.Vector(node.vertex)
+
+                balance = ucgf.Vector(0, 0, 0)
+
+                for neighbor in neighbors:
+                    balance += ucgf.Vector(neighbor.vertex)
+
+                if len(neighbors) > 0:
+                    balance *= 1.0 / len(neighbors)
+                else:
+                    print "PANIK"
+
+                new_vector = alpha * vector + (1 - alpha) * balance
+
+                #print new_vector.data
+
+                vertices.append(new_vector.data)
+
+            self.vertices = vertices
+
 def main(argv):
-    ucgf.show_scene([ObjObject(argv[0])])
+    obj = ObjObject(argv[0])
+    obj.smooth(0.3, 30)
+    ucgf.show_scene([obj])
 
 if __name__ == "__main__":
     import sys
     sys.exit(main(sys.argv[1:]))
-
 
