@@ -19,6 +19,7 @@
 ###############################################################################
 
 from warnings import warn
+from random import Random
 
 from pygame.locals import *
 from OpenGL.GL import *
@@ -128,6 +129,11 @@ class ObjObject:
 
         return graph
 
+    def noise(self, sigma):
+        rand = Random()
+        self.vertices = [tuple(rand.gauss(x, sigma) for x in vertex)
+                for vertex in self.vertices]
+
     def smooth(self, alpha, depth=1):
         for _ in range(depth):
             print _
@@ -159,7 +165,16 @@ class ObjObject:
 
 def main(argv):
     obj = ObjObject(argv[0])
-    obj.smooth(0.3, 30)
+
+    actions = {
+            'smooth': lambda a=0.3, n=1: obj.smooth(float(a), int(n)),
+            'noise': lambda s=0.01: obj.noise(float(s)),
+            }
+
+    for arg in argv[1:]:
+        parts = arg.split(":")
+        actions[parts[0]](*parts[1:])
+
     ucgf.show_scene([obj])
 
 if __name__ == "__main__":
