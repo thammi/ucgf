@@ -31,6 +31,12 @@ def face_item(l):
     raw = [int(i) if i else None for i in l.split('/')]
     return tuple(raw + [None] * (3 - len(raw)))
 
+def face_str(face):
+    if any(face[1:]):
+        return '/'.join(str(i) if i else "" for i in face)
+    else:
+        return str(face[1])
+
 class GraphNode:
 
     def __init__(self, vertex):
@@ -68,6 +74,28 @@ class ObjObject:
                     actions[args[0]](args[1:])
                 else:
                     warn("Unknown command: " + cmd)
+
+    def save_obj(self, file_name):
+        parts = [
+                ('v', self.vertices, str),
+                ('vt', self.texture, str),
+                ('vn', self.normals, str),
+                ('f', self.faces, face_str),
+                ]
+
+        out = open(file_name, "w")
+
+        for name, items, str_fun in parts:
+            for item in items:
+                out.write(name)
+
+                for sub in item:
+                    out.write(" ")
+                    out.write(str_fun(sub))
+
+                out.write("\n")
+
+        out.close()
 
     def gl_init(self):
         self.gl_list = ucgf.list_render(self.raw_render)
@@ -169,6 +197,7 @@ def main(argv):
     actions = {
             'smooth': lambda a=0.3, n=1: obj.smooth(float(a), int(n)),
             'noise': lambda s=0.01: obj.noise(float(s)),
+            'obj': lambda fn='tmp.obj': obj.save_obj(fn),
             }
 
     for arg in argv[1:]:
