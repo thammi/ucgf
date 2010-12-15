@@ -49,21 +49,14 @@ def main(argv):
             'volume': volume,
             }
 
-    if len(argv) <= 1:
-        print "Please specify an .obj file and at least one action of:"
-
-        for action in actions:
-            print "- " + action
-
+    if len(argv) < 1:
+        print "Please specify an .obj file"
         return 1
 
     obj = obj_parser.ObjObject(argv[0])
 
-    for action in argv[1:]:
-        if action in actions:
-            print action + ": " + str(actions[action](obj))
-        else:
-            raise NotImplementedError()
+    for action, fun in actions.items():
+        print "%s: %s" % (action, fun(obj))
 
 if __name__ == "__main__":
     import sys
