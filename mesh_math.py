@@ -65,17 +65,6 @@ def main(argv):
         else:
             raise NotImplementedError()
 
-class SmoothMesh(ObjObject):
-
-    def __init__(self, original, alpha, color=(1, 0, 1)):
-        self.color = color
-
-        self.normals = original.normals
-        self.texture = original.texture
-        self.faces = original.faces
-
-        self.vertices = vertices = []
-
 if __name__ == "__main__":
     import sys
     sys.exit(main(sys.argv[1:]))
