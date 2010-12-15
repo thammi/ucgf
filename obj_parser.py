@@ -35,7 +35,7 @@ def face_str(face):
     if any(face[1:]):
         return '/'.join(str(i) if i else "" for i in face)
     else:
-        return str(face[1])
+        return str(face[0])
 
 class GraphNode:
 
