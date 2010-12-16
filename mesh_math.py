@@ -33,7 +33,7 @@ def face_surface(face):
     b = (face[2] - face[0]).size()
     c = (face[1] - face[2]).size()
 
-    s = (a + b + c) / 2
+    s = (a + b + c) / 2.0
 
     return (s * (s - a) * (s - b) * (s - c)) ** 0.5
 

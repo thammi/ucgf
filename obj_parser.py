@@ -181,7 +181,7 @@ class ObjObject:
                 if len(neighbors) > 0:
                     balance *= 1.0 / len(neighbors)
                 else:
-                    print "PANIK"
+                    warn("Vertex without neighbor")
 
                 new_vector = alpha * vector + (1 - alpha) * balance
 
