@@ -113,7 +113,7 @@ class ObjObject:
             glBegin(GL_TRIANGLE_FAN)
 
             # this is very hacky normal calculation (if none given)!
-            if face[0][1] == None:
+            if face[0][2] == None:
                 vv = [ucgf.Vector(*vertices[i[0] - 1]) for i in face]
                 ab = vv[1] - vv[0]
                 ac = vv[2] - vv[0]
