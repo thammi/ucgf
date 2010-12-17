@@ -26,6 +26,7 @@ from OpenGL.GL import *
 from OpenGL.GLU import *
 
 import ucgf
+from ucgf import Vector
 
 def face_item(l):
     raw = [int(i) if i else None for i in l.split('/')]
@@ -58,8 +59,8 @@ class ObjObject:
         inp = open(file_name)
 
         actions = {
-                'v': lambda l: vertices.append(tuple(float(i) for i in l)),
-                'vn': lambda l: normals.append(tuple(float(i) for i in l)),
+                'v': lambda l: vertices.append(Vector(float(i) for i in l)),
+                'vn': lambda l: normals.append(Vector(float(i) for i in l)),
                 'vt': lambda l: texture.append(tuple(float(i) for i in l)),
                 'f': lambda l: faces.append(tuple(face_item(i) for i in l)),
                 }
@@ -114,7 +115,7 @@ class ObjObject:
 
             # this is very hacky normal calculation (if none given)!
             if face[0][2] == None:
-                vv = [ucgf.Vector(*vertices[i[0] - 1]) for i in face]
+                vv = [vertices[i[0] - 1] for i in face]
                 ab = vv[1] - vv[0]
                 ac = vv[2] - vv[0]
                 n = ab.cross(ac)
@@ -142,8 +143,7 @@ class ObjObject:
         vertices = self.vertices
         faces = self.faces
 
-        return (tuple(ucgf.Vector(vertices[i-1]) for i, _, _ in f)
-                for f in faces)
+        return (tuple(vertices[i-1] for i, _, _ in f) for f in faces)
 
     def graph(self):
         graph = [GraphNode(vertex) for vertex in self.vertices]
@@ -159,7 +159,7 @@ class ObjObject:
 
     def noise(self, sigma):
         rand = Random()
-        self.vertices = [tuple(rand.gauss(x, sigma) for x in vertex)
+        self.vertices = [Vector(rand.gauss(x, sigma) for x in vertex)
                 for vertex in self.vertices]
 
     def smooth(self, alpha, depth=1):
@@ -171,23 +171,17 @@ class ObjObject:
             for node in self.graph():
                 neighbors = node.neighbors
 
-                vector = ucgf.Vector(node.vertex)
-
-                balance = ucgf.Vector(0, 0, 0)
+                balance = Vector(0, 0, 0)
 
                 for neighbor in neighbors:
-                    balance += ucgf.Vector(neighbor.vertex)
+                    balance += neighbor.vertex
 
                 if len(neighbors) > 0:
                     balance *= 1.0 / len(neighbors)
                 else:
                     warn("Vertex without neighbor")
 
-                new_vector = alpha * vector + (1 - alpha) * balance
-
-                #print new_vector.data
-
-                vertices.append(new_vector.data)
+                vertices.append(alpha * node.vertex + (1 - alpha) * balance)
 
             self.vertices = vertices
 
