@@ -83,7 +83,7 @@ class ObjObject:
         self.normals = normals = []
         self.texture = texture = []
         self.faces = faces = []
-        self.faces = strips = []
+        self.strips = strips = []
         
         inp = open(file_name)
 
