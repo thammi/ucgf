@@ -28,6 +28,34 @@ from OpenGL.GLU import *
 import ucgf
 from ucgf import Vector
 
+def in_triangle(point, triangle):
+    a, b, c = triangle
+    p = point
+
+    v0 = c - a
+    v1 = b - a
+    v2 = p - a
+
+    dot00 = v0 * v0
+    dot01 = v0 * v1
+    dot02 = v0 * v2
+    dot11 = v1 * v1
+    dot12 = v1 * v2
+
+    denom = (dot00 * dot11 - dot01 * dot01)
+
+    if denom:
+        u = (dot11 * dot02 - dot01 * dot12) / denom
+        v = (dot00 * dot12 - dot01 * dot02) / denom
+
+        e = p - (u * v0 + v * v1)
+
+        diff = sum(e)
+
+        return u > 0 and v > 0 and u + v < 1 and diff < 10**-10
+    else:
+        return False
+
 def face_item(l):
     raw = [int(i) if i else None for i in l.split('/')]
     return tuple(raw + [None] * (3 - len(raw)))
