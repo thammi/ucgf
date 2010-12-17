@@ -198,6 +198,32 @@ class ObjObject:
 
         return graph
 
+    def expand_strip(self, face, node):
+        raise NotImplementedError()
+
+    def strip_triangles(self, samples=1):
+        faces = self.faces
+        strips = self.strips
+        rand = Random()
+
+        while faces:
+            possible_strips = []
+
+            for i in range(samples):
+                face = rand.randint(0, len(faces))
+                node = rand.randint(0, len(faces[face]))
+
+                strip, consumed = expand_strip(face, node)
+
+                possible_strips.append((strip, consumed))
+
+            strip, consumed = max(possible_strips, lambda (s, c): len(s))
+
+            for index in consumed:
+                del faces[index]
+
+            strips.append(strip)
+
     def triangulate(self):
         # ear clipping
 
