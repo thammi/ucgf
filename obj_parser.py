@@ -90,7 +90,7 @@ class ObjObject:
                 'v': lambda l: vertices.append(Vector(float(i) for i in l)),
                 'vn': lambda l: normals.append(Vector(float(i) for i in l)),
                 'vt': lambda l: texture.append(tuple(float(i) for i in l)),
-                'f': lambda l: faces.append(tuple(face_item(i) for i in l)),
+                'f': lambda l: faces.append([face_item(i) for i in l]),
                 }
 
         for line in inp:
@@ -185,6 +185,60 @@ class ObjObject:
 
         return graph
 
+    def triangulate(self):
+        vertices = self.vertices
+        faces = self.faces
+
+        for face in list(faces):
+            l = len(face)
+
+            # TODO: hacky
+            if l == 3:
+                continue
+
+            def is_concave(index):
+                # TODO: implement me!!!
+                return True
+
+            # determine convex and concave nodes
+            concave = set(node for i, node in enumerate(face) if is_concave(i))
+
+            for index, node in reversed(list(enumerate(face))):
+                # TODO: hacky
+                if l == 3:
+                    break
+
+                # iterate only over concave nodes
+                if node in concave:
+                    # let's build a triangle
+                    prev = face[(index-1)%l]
+                    foll = face[(index+1)%l]
+
+                    # check for collisions
+                    for p in (vertices[node[0]-1] for node in face if node not in concave):
+                        if in_triangle(p, [n[0] for n in prev, node, foll]):
+                            break
+                    else:
+                        # remove the ear
+                        l -= 1
+                        del face[index]
+
+                        # add a new triangle
+                        faces.append([prev, node, foll])
+
+                        # re-classify previous node
+                        if prev not in concave:
+                            if is_concave(index-1):
+                                concave.add(prev)
+
+                        # re-classify following node
+                        if foll not in concave:
+                            if is_concave(index):
+                                concave.add(prev)
+
+        from pprint import pprint
+        pprint(faces)
+
     def noise(self, sigma):
         rand = Random()
         self.vertices = [Vector(rand.gauss(x, sigma) for x in vertex)
@@ -220,6 +274,7 @@ def main(argv):
             'smooth': lambda a=0.3, n=1: obj.smooth(float(a), int(n)),
             'noise': lambda s=0.01: obj.noise(float(s)),
             'obj': lambda fn='tmp.obj': obj.save_obj(fn),
+            'ear': lambda: obj.triangulate(),
             }
 
     for arg in argv[1:]:
