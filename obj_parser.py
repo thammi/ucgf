@@ -76,8 +76,9 @@ class GraphNode:
 
 class ObjObject:
 
-    def __init__(self, file_name, color=(1, 0, 1)):
+    def __init__(self, file_name, color=(1, 0, 1), color_fun=False):
         self.color = color
+        self.color_fun = color_fun
 
         self.vertices = vertices = []
         self.normals = normals = []
@@ -142,9 +143,16 @@ class ObjObject:
         vertices = self.vertices
         normals = self.normals
         texure = self.texture
+        color_fun = self.color_fun
+
+        if color_fun:
+            r = Random()
 
         for face in faces:
             glBegin(mode)
+
+            if color_fun:
+                glColor(*([r.randint(10, 50) / 50.0 for i in range(3)] + [255]))
 
             # this is very hacky normal calculation (if none given)!
             if face[0][2] == None:
@@ -285,7 +293,7 @@ class ObjObject:
             self.vertices = vertices
 
 def main(argv):
-    obj = ObjObject(argv[0])
+    obj = ObjObject(argv[0], color_fun=True)
 
     actions = {
             'smooth': lambda a=0.3, n=1: obj.smooth(float(a), int(n)),
