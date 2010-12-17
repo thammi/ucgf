@@ -199,8 +199,15 @@ class ObjObject:
                 continue
 
             def is_convex(index):
-                # TODO: implement me!!!
-                return True
+                a = vertices[face[(index-1)%l][0]-1]
+                b = vertices[face[(index+1)%l][0]-1]
+                p = vertices[face[index][0]-1]
+
+                pa = a - p
+                pb = b - p
+                ap = p - a
+
+                return pa.cross(pb) * ap.cross(pb) < 0
 
             # determine convex and convex nodes
             convex = set(node for i, node in enumerate(face) if is_convex(i))
