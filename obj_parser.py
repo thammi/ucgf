@@ -186,6 +186,8 @@ class ObjObject:
         return graph
 
     def triangulate(self):
+        # ear clipping
+
         vertices = self.vertices
         faces = self.faces
 
@@ -196,27 +198,30 @@ class ObjObject:
             if l == 3:
                 continue
 
-            def is_concave(index):
+            def is_convex(index):
                 # TODO: implement me!!!
                 return True
 
-            # determine convex and concave nodes
-            concave = set(node for i, node in enumerate(face) if is_concave(i))
+            # determine convex and convex nodes
+            convex = set(node for i, node in enumerate(face) if is_convex(i))
 
-            for index, node in reversed(list(enumerate(face))):
-                # TODO: hacky
-                if l == 3:
-                    break
+            # just enough iterations to triangulate the face
+            for i in range(l-3):
+                # get all convex nodes with index
+                convex_nodes = [(i, n) for i, n in enumerate(face) if n in convex]
 
-                # iterate only over concave nodes
-                if node in concave:
-                    # let's build a triangle
+                # test each convex node
+                for index, node in reversed(convex_nodes):
+                    # find neighbors
                     prev = face[(index-1)%l]
                     foll = face[(index+1)%l]
 
-                    # check for collisions
-                    for p in (vertices[node[0]-1] for node in face if node not in concave):
-                        if in_triangle(p, [n[0] for n in prev, node, foll]):
+                    # check for collisions with concave nodes
+                    for conc_node in (n for n in face if n not in convex):
+                        point = vertices[conc_node[0]-1]
+                        triangle = [vertices[n[0]-1] for n in prev, node, foll]
+
+                        if in_triangle(point, triangle):
                             break
                     else:
                         # remove the ear
@@ -227,17 +232,17 @@ class ObjObject:
                         faces.append([prev, node, foll])
 
                         # re-classify previous node
-                        if prev not in concave:
-                            if is_concave(index-1):
-                                concave.add(prev)
+                        if prev not in convex:
+                            if is_convex(index-1):
+                                convex.add(prev)
 
                         # re-classify following node
-                        if foll not in concave:
-                            if is_concave(index):
-                                concave.add(prev)
+                        if foll not in convex:
+                            if is_convex(index):
+                                convex.add(prev)
 
-        from pprint import pprint
-        pprint(faces)
+                        # let's have another run
+                        break
 
     def noise(self, sigma):
         rand = Random()
