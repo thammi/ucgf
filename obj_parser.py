@@ -83,6 +83,7 @@ class ObjObject:
         self.normals = normals = []
         self.texture = texture = []
         self.faces = faces = []
+        self.faces = strips = []
         
         inp = open(file_name)
 
@@ -130,16 +131,20 @@ class ObjObject:
         self.gl_list = ucgf.list_render(self.raw_render)
 
     def raw_render(self):
-        vertices = self.vertices
-        normals = self.normals
-        texure = self.texture
-
         color = self.color
         if color != None:
             glColor(*color)
 
-        for face in self.faces:
-            glBegin(GL_TRIANGLE_FAN)
+        self.render_polygons(GL_TRIANGLE_FAN, self.faces)
+        self.render_polygons(GL_TRIANGLE_STRIP, self.strips)
+
+    def render_polygons(self, mode, faces):
+        vertices = self.vertices
+        normals = self.normals
+        texure = self.texture
+
+        for face in faces:
+            glBegin(mode)
 
             # this is very hacky normal calculation (if none given)!
             if face[0][2] == None:
@@ -194,7 +199,7 @@ class ObjObject:
         for face in list(faces):
             l = len(face)
 
-            # TODO: hacky
+            # TODO: hacky but speedy
             if l == 3:
                 continue
 
