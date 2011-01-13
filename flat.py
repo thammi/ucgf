@@ -124,25 +124,51 @@ class BezierPipe(Pipe):
             else:
                 return (1-t) * b(i, n-1, t) + t * b(i - 1, n - 1, t)
 
-        steps = 20
+        steps = 100
         for t in range(steps):
             i = float(t) / (steps - 1)
             yield sum((b(j, n, i)*points[j] for j in range(l)), ucgf.Vector([0, 0]))
+
+class Lagrange(Pipe):
+
+    def pipe_points(self):
+        points = self.points
+        l = len(points)
+
+        def L(i, t):
+            product = lambda a, b: a * b
+            no_i = lambda a: a != i
+            return reduce(product, ((t - k) / (i - k) for k in filter(no_i, range(l))))
+
+        steps = 100
+        for i in range(steps):
+            t = float(i) / (steps - 1) * (l - 1)
+
+            parts = (L(index, t) * point for index, point in enumerate(points))
+            yield sum(parts, ucgf.Vector(0, 0))
 
 def read_points(file_name):
     return [ucgf.Vector(map(float, line.split())) for line in open(file_name)]
 
 def main(argv):
-    points = read_points(argv[0])
+    curves = {
+            'lagrange': Lagrange,
+            'bezier': BezierPipe,
+            }
 
-    if len(argv) > 1:
-        handle = obj_parser.ObjObject(argv[1], color=None)
+    curve = curves[argv[0]]
+
+    points = read_points(argv[1])
+
+    if len(argv) > 2:
+        handle = obj_parser.ObjObject(argv[2], color=None)
         handle.center()
         handle.normalize()
     else:
         handle = ucgf.Sphere(color=None)
 
-    ucgf.show_scene([BezierPipe(points, handle=handle)])
+    #ucgf.show_scene([BezierPipe(points, handle=handle)])
+    ucgf.show_scene([Lagrange(points, handle=handle)])
 
 if __name__ == "__main__":
     import sys
