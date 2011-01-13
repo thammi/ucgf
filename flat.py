@@ -23,6 +23,8 @@ from pygame.locals import *
 from OpenGL.GL import *
 from OpenGL.GLU import *
 
+import math
+
 import ucgf
 
 import obj_parser
@@ -77,9 +79,9 @@ class Pipe:
             glPushMatrix()
 
             if index == cur: 
-                glColor(0, 1, 0, 1)
-            else:
                 glColor(1, 0, 0, 1)
+            else:
+                glColor(0.5, 0.2, 0.2, 1)
 
             glTranslate(point[0], point[1], 0)
             glScale(factor, factor, factor)
@@ -98,11 +100,24 @@ class Pipe:
             glVertex(point)
         glEnd()
 
+        steps = list(self.pipe_points(100))
+
+        def bend(index):
+            if index < 1 or index >= len(steps) - 1:
+                return 0
+
+            a, p, b = steps[index-1:index+2]
+            angle = math.atan2(*(a-p)) - math.atan2(*(b-p))
+            return max(0, min(1, (1 - abs((angle % math.pi * 2)  / math.pi - 1)) ** 0.3))
+
         # drawing the actual pipe
         glLineWidth(4)
         glColor(0, 0, 1, 1)
         glBegin(GL_LINE_STRIP)
-        for point in self.pipe_points():
+        for index, point in enumerate(steps):
+            print index, bend(index)
+            color = bend(index)
+            glColor(0, color, 1 - color, 1)
             glVertex(point)
         glEnd()
 
@@ -111,7 +126,7 @@ class Pipe:
 
 class BezierPipe(Pipe):
 
-    def pipe_points(self):
+    def pipe_points(self, steps):
         points = self.points
         l = len(points)
         n = l - 1
@@ -124,14 +139,13 @@ class BezierPipe(Pipe):
             else:
                 return (1-t) * b(i, n-1, t) + t * b(i - 1, n - 1, t)
 
-        steps = 100
         for t in range(steps):
             i = float(t) / (steps - 1)
             yield sum((b(j, n, i)*points[j] for j in range(l)), ucgf.Vector([0, 0]))
 
 class Lagrange(Pipe):
 
-    def pipe_points(self):
+    def pipe_points(self, steps):
         points = self.points
         l = len(points)
 
@@ -140,7 +154,6 @@ class Lagrange(Pipe):
             no_i = lambda a: a != i
             return reduce(product, ((t - k) / (i - k) for k in filter(no_i, range(l))))
 
-        steps = 100
         for i in range(steps):
             t = float(i) / (steps - 1) * (l - 1)
 
