@@ -168,7 +168,7 @@ def main(argv):
         handle = ucgf.Sphere(color=None)
 
     #ucgf.show_scene([BezierPipe(points, handle=handle)])
-    ucgf.show_scene([Lagrange(points, handle=handle)])
+    ucgf.show_scene([curve(points, handle=handle)])
 
 if __name__ == "__main__":
     import sys
