@@ -318,6 +318,31 @@ class ObjObject:
 
             self.vertices = vertices
 
+    def center(self):
+        vertices = self.vertices
+
+        if len(vertices) == 0:
+            return
+
+        maxs = list(vertices[0])
+        mins = list(vertices[0])
+
+        for vertex in vertices[1:]:
+            for axis, part in enumerate(vertex):
+                if part < mins[axis]:
+                    mins[axis] = part
+                if part > maxs[axis]:
+                    maxs[axis] = part
+
+        aabb_center = (ucgf.Vector(mins) + ucgf.Vector(maxs)) * 0.5
+
+        self.vertices = [v - aabb_center for v in vertices]
+
+    def normalize(self):
+        vertices = self.vertices
+        factor = 1. / max(v.size() for v in vertices)
+        self.vertices = [v * factor for v in vertices]
+
 def main(argv):
     obj = ObjObject(argv[0], color_fun=True)
 
@@ -326,6 +351,8 @@ def main(argv):
             'noise': lambda s=0.01: obj.noise(float(s)),
             'obj': lambda fn='tmp.obj': obj.save_obj(fn),
             'ear': lambda: obj.triangulate(),
+            'center': obj.center,
+            'normalize': obj.normalize
             }
 
     for arg in argv[1:]:
