@@ -198,11 +198,9 @@ class ObjObject:
 
         return graph
 
-    def expand_strip(self, face, node):
-        raise NotImplementedError()
-
     def strip_triangles(self, samples=1):
         faces = self.faces
+        vertices = self.vertices
         strips = self.strips
         rand = Random()
 
@@ -210,10 +208,34 @@ class ObjObject:
             possible_strips = []
 
             for i in range(samples):
-                face = rand.randint(0, len(faces))
-                node = rand.randint(0, len(faces[face]))
+                face_i = rand.randint(0, len(faces))
+                face = faces[face_i]
+                node_i = rand.randint(0, len(faces[face_i]))
 
-                strip, consumed = expand_strip(face, node)
+                a = vertices[faces[(node_i+1)%len(faces)][0]]
+                b = vertices[faces[(node_i+2)%len(faces)][0]]
+
+                strip = [face[node_i], a, b]
+                consumed = [face_i]
+
+                while True:
+                    for index, other in enumerate(faces):
+                        o_verts = [n[0] for n in other]
+                        if a in o_verts and b in o_verts:
+                            t = a
+
+                            a = b
+
+                            for i in other:
+                                if i[0] == t:
+                                    b = (i + 1) % len(other)
+
+                            strip.append(b)
+                            consumed.append(index)
+
+                            break
+                    else:
+                        break
 
                 possible_strips.append((strip, consumed))
 
