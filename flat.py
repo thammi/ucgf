@@ -115,7 +115,6 @@ class Pipe:
         glColor(0, 0, 1, 1)
         glBegin(GL_LINE_STRIP)
         for index, point in enumerate(steps):
-            print index, bend(index)
             color = bend(index)
             glColor(0, color, 1 - color, 1)
             glVertex(point)
