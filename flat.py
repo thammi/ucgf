@@ -148,11 +148,11 @@ class Lagrange(Pipe):
     def pipe_points(self, steps):
         points = self.points
         l = len(points)
+        u = range(l)
 
         def L(i, t):
-            product = lambda a, b: a * b
-            no_i = lambda a: a != i
-            return reduce(product, ((t - k) / (i - k) for k in filter(no_i, range(l))))
+            factors = ((t-u[k]) / (u[i]-u[k]) for k in range(l) if k != i)
+            return reduce(lambda a, b: a * b, factors)
 
         for i in range(steps):
             t = float(i) / (steps - 1) * (l - 1)
