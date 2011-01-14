@@ -159,6 +159,25 @@ class Lagrange(Pipe):
             parts = (L(index, t) * point for index, point in enumerate(points))
             yield sum(parts, ucgf.Vector(0, 0))
 
+class CoxDeBoor(Pipe):
+
+    def pipe_points(self, steps):
+        points = self.points
+        l = len(points)
+        d = 2
+        u = range(l + 1 + d)
+
+        def N(i, g, t):
+            if g == 0:
+                return 1 if u[i] <= t < u[i+1] else 0
+
+            return (t-u[i])/(u[i+g]-u[i])*N(i, g-1, t) + (u[i+1+g]-t)/(u[i+1+g]-u[i+1])*N(i+1, g-1, t)
+
+        for i in range(steps):
+            t = float(i) / (steps - 1) * l
+            yield sum((N(j, d, t)*points[j] for j in range(l)), ucgf.Vector([0, 0]))
+
+
 def read_points(file_name):
     return [ucgf.Vector(map(float, line.split())) for line in open(file_name)]
 
@@ -166,6 +185,7 @@ def main(argv):
     curves = {
             'lagrange': Lagrange,
             'bezier': BezierPipe,
+            'cox_de_boor': CoxDeBoor,
             }
 
     curve = curves[argv[0]]
