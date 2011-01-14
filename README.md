@@ -24,3 +24,7 @@ Yet another way to get the "Computergraphik I" exercises done.
 
 * *obj_parser.py:* Parsing .obj files
 
+### Exercise 4
+
+* *flat.py:* Drawing curves based on different functions
+
